@@ -19,11 +19,14 @@ blue   = (0,0,255)
 yellow = (238,232,170)
 red    = (178,34,34)
 
-OWM_ID      = os.getenv('OWM_ID')
+sleep_time = 3
+
+OWM_ID = os.environ['OWM_ID']
 
 # ==========================================================================
 def display_msg(msg, color):
-
+    time.sleep(sleep_time)
+    
     sense.show_message(msg, scroll_speed = speed, text_colour=color)
 # ==========================================================================
 
@@ -31,8 +34,10 @@ def display_msg(msg, color):
 # ==========================================================================
 def get_temperature(weather_location, friendly_name):
 
+    time.sleep(sleep_time)
+    
     url         = 'http://api.openweathermap.org/data/2.5/weather?q={' + str(weather_location) + '}'
-    parameters  = {'appid':'OWM_ID','units':'imperial'}
+    parameters  = {'appid':OWM_ID,'units':'imperial'}
     head        = {'Accept':'application//json','Content-Type':'application/json'}
 
     try:
@@ -66,12 +71,14 @@ def get_temperature(weather_location, friendly_name):
 # ==========================================================================
 def get_stock_price(ticker):
 
+    time.sleep(sleep_time)
+    
     try:
         stock = Share(ticker)
         price = stock.get_price()
         msg = ". . .  " + ticker.lower() + " " + str(round(float(price), 2)) + "  . . ."
     except:
-        msg = "error retreiving stock data"
+        msg = ". . .  error retreiving stock data  . . ."
 
     return msg
 # ==========================================================================
@@ -80,6 +87,8 @@ def get_stock_price(ticker):
 # ==========================================================================
 def get_cpu_temp():
 
+    time.sleep(sleep_time)
+    
     return ". . .  cpu = " + str(round(CPUTemperature().temperature, 2)) + "C  . . ."
 # ==========================================================================
 
@@ -87,6 +96,8 @@ def get_cpu_temp():
 # ==========================================================================
 def get_earthquake():
 
+    time.sleep(sleep_time)
+    
     start_time = datetime.utcfromtimestamp(time.time() - seconds * minutes).isoformat()
     
     url         = 'https://earthquake.usgs.gov/fdsnws/event/1/query?'
@@ -102,7 +113,7 @@ def get_earthquake():
             if json_data['metadata']['count'] > 0:
                 msg = ". . .   latest earthquake "  + json_data['features'][0]['properties']['title'] + "  . . ."
     except:
-        msg = ". . .  earthquake data unavailable  . . ."
+        msg = ". . .  error retreiving earthquake data  . . ."
 
     return msg
 # ==========================================================================
@@ -113,7 +124,7 @@ def get_earthquake():
 while True:
 
     sense.set_rotation(270)
-
+    
     display_msg(get_earthquake(), red)
 
     display_msg(get_stock_price('baba'), yellow)   
