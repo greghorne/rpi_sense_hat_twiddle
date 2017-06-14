@@ -19,7 +19,7 @@ blue   = (0,0,255)
 yellow = (238,232,170)
 red    = (178,34,34)
 
-sleep_time = 3
+sleep_time = 2
 
 OWM_ID = os.environ['OWM_ID']
 
@@ -56,12 +56,12 @@ def get_temperature(weather_location, friendly_name):
             else:
                 location_name = location
 
-            msg = ". . .  " + location_name.lower() + " " + str(round(temp, 1)) + "F  " + str(humidity) + "%  . . .   "
+            msg = "...  " + location_name.lower() + " " + str(round(temp, 1)) + "F  " + str(humidity) + "%  ...   "
         else:
-            msg = ". . .  weather data unavailable  . . ."
+            msg = "...  weather data unavailable  ..."
 
     except:
-        msg = ". . .  error retreiving weather data  . . ."
+        msg = "...  error retreiving weather data  ..."
             
 
     return msg
@@ -76,11 +76,18 @@ def get_stock_price(ticker):
     try:
         stock = Share(ticker)
         price = stock.get_price()
-        msg = ". . .  " + ticker.lower() + " " + str(round(float(price), 2)) + "  . . ."
-    except:
-        msg = ". . .  error retreiving stock data  . . ."
+        price_open = stock.get_open()
+        msg = "...  " + ticker.lower() + " " + str(round(float(price), 2)) + "  ..."
 
-    return msg
+        if float(price) - float(price_open) > 0:
+            color = green
+        else:
+            color = red
+    except:
+        msg   = "...  error retreiving stock data  ..."
+        color = red
+
+    return (msg, color)
 # ==========================================================================
 
 
@@ -89,7 +96,7 @@ def get_cpu_temp():
 
     time.sleep(sleep_time)
     
-    return ". . .  cpu = " + str(round(CPUTemperature().temperature, 2)) + "C  . . ."
+    return "...  cpu = " + str(round(CPUTemperature().temperature, 2)) + "C  ..."
 # ==========================================================================
 
 
@@ -106,14 +113,14 @@ def get_earthquake():
     try:
         response    = requests.get(url,params=parameters)
 
-        msg = ". . .  earthquake data unavailable  . . ."
+        msg = "...  earthquake data unavailable  ..."
         if response.ok:
             data      = str(response.content,'utf-8')
             json_data = json.loads(data)
             if json_data['metadata']['count'] > 0:
-                msg = ". . .   latest earthquake "  + json_data['features'][0]['properties']['title'] + "  . . ."
+                msg = "...   latest earthquake "  + json_data['features'][0]['properties']['title'] + "  ..."
     except:
-        msg = ". . .  error retreiving earthquake data  . . ."
+        msg = "...  error retreiving earthquake data  ..."
 
     return msg
 # ==========================================================================
@@ -124,16 +131,18 @@ def get_earthquake():
 while True:
 
     sense.set_rotation(270)
-    
-    display_msg(get_earthquake(), red)
 
-    display_msg(get_stock_price('baba'), yellow)   
-    display_msg(get_stock_price('tcehy'), yellow)
+    msg, color = get_stock_price('baba')
+    display_msg(msg, color)
+
+    msg, color = get_stock_price('tcehy')
+    display_msg(msg, color)
+
+    display_msg(get_earthquake(), red)
     
-    display_msg(get_temperature("Broken Arrow,OK", ""), blue)
-    display_msg(get_temperature("Pflugerville,TX", ""), blue)
-    display_msg(get_temperature("Atsugi,Japan", ""), blue)
-    display_msg(get_temperature("San Jose, CA", ""), blue)
+    display_msg(get_temperature("Broken Arrow,OK", "broken arrow"), blue)
+    display_msg(get_temperature("Pflugerville,TX", "pflugerville"), blue)
+    display_msg(get_temperature("San Jose, CA", "san jose"), blue)
     
     display_msg(get_cpu_temp(), green)
 
